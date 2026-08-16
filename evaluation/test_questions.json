@@ -1,0 +1,12 @@
+[
+  {"id":"Q1","question":"What are the major risks facing Apple?","relevant_pages":[8,12]},
+  {"id":"Q2","question":"How did Apple's total net sales change in 2025?","relevant_pages":[26,39]},
+  {"id":"Q3","question":"How did Apple's Services net sales perform in 2025?","relevant_pages":[26,39]},
+  {"id":"Q4","question":"What factors affect Apple's gross margins?","relevant_pages":[27]},
+  {"id":"Q5","question":"What does Apple say about competition in its markets?","relevant_pages":[6]},
+  {"id":"Q6","question":"What risks does Apple face from government regulation?","relevant_pages":[17,18]},
+  {"id":"Q7","question":"How much did Apple spend on research and development in 2025?","relevant_pages":[]},
+  {"id":"Q8","question":"What were Apple's major sources of net sales in 2025?","relevant_pages":[26,39]},
+  {"id":"Q9","question":"What does Apple report about its supply chain and manufacturing risks?","relevant_pages":[9,12]},
+  {"id":"Q10","question":"How did Apple's operating income change in 2025?","relevant_pages":[]}
+]
