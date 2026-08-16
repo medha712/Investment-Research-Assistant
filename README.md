@@ -123,8 +123,7 @@ investment-research-assistant/
 │   ├── build_ground_truth.py
 │   ├── compare_chunking.py
 │   └── inspect_pages.py
-├── PROJECT_DOCUMENTATION.md
-├── LOOM_SCRIPT.md
+├── docs/screenshots/               # Application screenshots
 └── requirements.txt
 ```
 
@@ -136,9 +135,5 @@ investment-research-assistant/
 - Image-only PDFs do not have an OCR path.
 - Generation depends on an external Gemini API and the configured model's availability.
 - Financial tables are handled as extracted text rather than through a dedicated table parser.
-
-## Full documentation
-
-See [PROJECT_DOCUMENTATION.md](PROJECT_DOCUMENTATION.md).
 
 GitHub repository: [medha712/Investment-Research-Assistant](https://github.com/medha712/Investment-Research-Assistant)
