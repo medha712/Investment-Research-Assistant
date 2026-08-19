@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from sentence_transformers import SentenceTransformer, CrossEncoder
+from sentence_transformers import CrossEncoder
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from document_loader import load_pdf
 from semantic_chunker import semantic_chunk_document
@@ -67,8 +68,8 @@ class InvestmentResearchRAG:
 
         print("Loading embedding model...")
 
-        self.embedding_model = SentenceTransformer(
-            EMBEDDING_MODEL
+        self.embedding_model = HuggingFaceEmbeddings(
+            model_name=EMBEDDING_MODEL
         )
 
         # -------------------------------
@@ -135,8 +136,6 @@ class InvestmentResearchRAG:
         candidates = search(
             question,
             self.index,
-            self.chunks,
-            self.embedding_model,
             top_k=15
         )
 
