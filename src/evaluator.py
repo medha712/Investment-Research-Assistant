@@ -1,7 +1,8 @@
 import json
 from pathlib import Path
 
-from sentence_transformers import SentenceTransformer, CrossEncoder
+from sentence_transformers import CrossEncoder
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from document_loader import load_pdf
 from fixed_chunker import fixed_size_chunk
@@ -51,9 +52,7 @@ def calculate_metrics(results, relevant_pages):
 
 def evaluate_retrieval(
     questions,
-    chunks,
     index,
-    model,
     top_k=5
 ):
 
@@ -66,8 +65,6 @@ def evaluate_retrieval(
         retrieved = search(
             q["question"],
             index,
-            chunks,
-            model,
             top_k=top_k
         )
 
@@ -97,9 +94,7 @@ def evaluate_retrieval(
 
 def evaluate_reranking(
     questions,
-    chunks,
     index,
-    embedding_model,
     reranker,
     candidate_k=15,
     top_k=5
@@ -115,8 +110,6 @@ def evaluate_reranking(
         candidates = search(
             q["question"],
             index,
-            chunks,
-            embedding_model,
             top_k=candidate_k
         )
 
@@ -166,7 +159,7 @@ if __name__ == "__main__":
     pages = load_pdf(pdf_path)
 
     print("Loading embedding model...")
-    model = SentenceTransformer(EMBEDDING_MODEL)
+    model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
     # ---------------- FIXED ----------------
 
@@ -203,18 +196,14 @@ if __name__ == "__main__":
 
     fixed_results, fixed_hit, fixed_mrr = evaluate_retrieval(
         questions,
-        fixed_chunks,
-        fixed_index,
-        model
+        fixed_index
     )
 
     print("Evaluating semantic retrieval...")
 
     semantic_results, semantic_hit, semantic_mrr = evaluate_retrieval(
         questions,
-        semantic_chunks,
-        semantic_index,
-        model
+        semantic_index
     )
 
     print("Loading reranker...")
@@ -225,9 +214,7 @@ if __name__ == "__main__":
 
     reranked_results, reranked_hit, reranked_mrr = evaluate_reranking(
         questions,
-        semantic_chunks,
         semantic_index,
-        model,
         reranker
     )
 

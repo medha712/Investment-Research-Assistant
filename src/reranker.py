@@ -1,5 +1,6 @@
 from pathlib import Path
-from sentence_transformers import SentenceTransformer, CrossEncoder
+from sentence_transformers import CrossEncoder
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from document_loader import load_pdf
 from semantic_chunker import semantic_chunk_document
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     pages = load_pdf(pdf_path)
 
     print("Loading embedding model...")
-    embedding_model = SentenceTransformer(EMBEDDING_MODEL)
+    embedding_model = HuggingFaceEmbeddings(model_name=EMBEDDING_MODEL)
 
     print("Creating semantic chunks...")
     chunks = semantic_chunk_document(
@@ -70,8 +71,6 @@ if __name__ == "__main__":
     initial_results = search(
         query,
         index,
-        chunks,
-        embedding_model,
         top_k=15
     )
 

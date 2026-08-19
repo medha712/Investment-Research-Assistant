@@ -1,5 +1,5 @@
 from pathlib import Path
-from sentence_transformers import SentenceTransformer
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from document_loader import load_pdf
 from fixed_chunker import fixed_size_chunk
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     pages = load_pdf(pdf_path)
 
     print("Loading embedding model...")
-    model = SentenceTransformer(MODEL_NAME)
+    model = HuggingFaceEmbeddings(model_name=MODEL_NAME)
 
     # -------------------------
     # FIXED CHUNKING
@@ -88,16 +88,12 @@ if __name__ == "__main__":
     fixed_results = search(
         query,
         fixed_index,
-        fixed_chunks,
-        model,
         top_k=5
     )
 
     semantic_results = search(
         query,
         semantic_index,
-        semantic_chunks,
-        model,
         top_k=5
     )
 
