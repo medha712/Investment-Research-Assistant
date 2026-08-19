@@ -1,12 +1,12 @@
-import faiss
-import numpy as np
+from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.utils import DistanceStrategy
 
 
 # --------------------------------------------------
 # CREATE FAISS INDEX
 # --------------------------------------------------
 
-def create_index(chunks, model):
+def create_index(chunks, embeddings):
 
     if not chunks:
         raise ValueError(
@@ -15,6 +15,7 @@ def create_index(chunks, model):
         )
 
     texts = []
+    metadatas = []
 
     for chunk in chunks:
 
@@ -22,6 +23,7 @@ def create_index(chunks, model):
 
         if text:
             texts.append(text)
+            metadatas.append({"page": chunk["page"]})
 
     if not texts:
         raise ValueError(
@@ -33,62 +35,28 @@ def create_index(chunks, model):
         f"Creating embeddings for {len(texts)} chunks..."
     )
 
-    embeddings = model.encode(
+    # Cosine distance matches the normalized inner-product
+    # similarity the original hand-rolled FAISS index used.
+    vectorstore = FAISS.from_texts(
         texts,
-        convert_to_numpy=True,
-        show_progress_bar=False
-    )
-
-    # Make sure embeddings have the expected shape
-    if embeddings.ndim != 2:
-        raise ValueError(
-            "Embedding generation failed. "
-            f"Expected a 2D matrix but received "
-            f"shape {embeddings.shape}."
-        )
-
-    if embeddings.shape[0] == 0:
-        raise ValueError(
-            "Embedding generation returned zero vectors."
-        )
-
-    # Convert to float32 for FAISS
-    embeddings = np.asarray(
         embeddings,
-        dtype="float32"
+        metadatas=metadatas,
+        distance_strategy=DistanceStrategy.COSINE
     )
-
-    # Normalize embeddings so inner product
-    # behaves like cosine similarity
-    faiss.normalize_L2(embeddings)
-
-    dimension = embeddings.shape[1]
-
-    index = faiss.IndexFlatIP(
-        dimension
-    )
-
-    index.add(embeddings)
 
     print(
         f"FAISS index created with "
-        f"{index.ntotal} vectors."
+        f"{vectorstore.index.ntotal} vectors."
     )
 
-    return index
+    return vectorstore
 
 
 # --------------------------------------------------
 # SEARCH FAISS INDEX
 # --------------------------------------------------
 
-def search(
-    query,
-    index,
-    chunks,
-    model,
-    top_k=5
-):
+def search(query, index, top_k=5):
 
     if not query or not query.strip():
         return []
@@ -98,60 +66,26 @@ def search(
             "FAISS index has not been created."
         )
 
-    if not chunks:
-        return []
-
-    # We cannot retrieve more results
-    # than actually exist in the index
     top_k = min(
         top_k,
-        index.ntotal
+        index.index.ntotal
     )
 
     if top_k <= 0:
         return []
 
-    # Embed user query
-    query_embedding = model.encode(
-        [query],
-        convert_to_numpy=True,
-        show_progress_bar=False
-    )
-
-    query_embedding = np.asarray(
-        query_embedding,
-        dtype="float32"
-    )
-
-    faiss.normalize_L2(
-        query_embedding
-    )
-
-    # Search FAISS
-    scores, indices = index.search(
-        query_embedding,
-        top_k
+    scored_documents = index.similarity_search_with_score(
+        query,
+        k=top_k
     )
 
     results = []
 
-    for score, idx in zip(
-        scores[0],
-        indices[0]
-    ):
-
-        # FAISS can return -1 when no result exists
-        if idx == -1:
-            continue
-
-        if idx >= len(chunks):
-            continue
-
-        chunk = chunks[idx]
+    for document, score in scored_documents:
 
         results.append({
-            "text": chunk["text"],
-            "page": chunk["page"],
+            "text": document.page_content,
+            "page": document.metadata["page"],
             "score": float(score)
         })
 
