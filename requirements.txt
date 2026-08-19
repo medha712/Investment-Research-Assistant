@@ -3,6 +3,7 @@ PyMuPDF==1.28.2
 sentence-transformers==5.7.0
 faiss-cpu==1.15.0
 numpy==2.5.2
-scikit-learn==1.9.0
 google-genai==2.18.1
 python-dotenv==1.2.2
+langchain-community==0.4.2
+langchain-huggingface==1.2.2
