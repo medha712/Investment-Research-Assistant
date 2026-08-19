@@ -1,8 +1,8 @@
 from pathlib import Path
 import re
 
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from document_loader import load_pdf
 
@@ -23,7 +23,7 @@ def split_into_sentences(text):
 
 def semantic_chunk_page(
     text,
-    model,
+    embeddings,
     similarity_threshold=0.55,
     max_chunk_chars=2000
 ):
@@ -35,24 +35,18 @@ def semantic_chunk_page(
     if len(sentences) == 1:
         return [sentences[0]]
 
-    # Convert every sentence into an embedding.
-    embeddings = model.encode(
-        sentences,
-        normalize_embeddings=True
-    )
+    # Convert every sentence into a (unit-normalized) embedding using
+    # LangChain's Embeddings interface, the same abstraction the FAISS
+    # vector store uses.
+    vectors = np.array(embeddings.embed_documents(sentences))
+    vectors = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
 
     chunks = []
     current_chunk = [sentences[0]]
 
     for i in range(1, len(sentences)):
 
-        previous_embedding = embeddings[i - 1].reshape(1, -1)
-        current_embedding = embeddings[i].reshape(1, -1)
-
-        similarity = cosine_similarity(
-            previous_embedding,
-            current_embedding
-        )[0][0]
+        similarity = float(np.dot(vectors[i - 1], vectors[i]))
 
         current_text = " ".join(current_chunk)
 
@@ -74,7 +68,7 @@ def semantic_chunk_page(
     return chunks
 
 
-def semantic_chunk_document(pages, model):
+def semantic_chunk_document(pages, embeddings):
 
     chunks = []
 
@@ -82,7 +76,7 @@ def semantic_chunk_document(pages, model):
 
         page_chunks = semantic_chunk_page(
             page["text"],
-            model
+            embeddings
         )
 
         for chunk_text in page_chunks:
@@ -104,10 +98,10 @@ if __name__ == "__main__":
     pages = load_pdf(pdf_path)
 
     print("Loading embedding model...")
-    model = SentenceTransformer(MODEL_NAME)
+    embeddings = HuggingFaceEmbeddings(model_name=MODEL_NAME)
 
     print("Creating semantic chunks...")
-    chunks = semantic_chunk_document(pages, model)
+    chunks = semantic_chunk_document(pages, embeddings)
 
     print(f"\nTotal pages: {len(pages)}")
     print(f"Total semantic chunks: {len(chunks)}")
