@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-from sentence_transformers import SentenceTransformer
+from langchain_huggingface import HuggingFaceEmbeddings
 
 from document_loader import load_pdf
 from semantic_chunker import semantic_chunk_document
@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # Load embedding model
     print("\nLoading embedding model...")
-    model = SentenceTransformer(MODEL_NAME)
+    model = HuggingFaceEmbeddings(model_name=MODEL_NAME)
 
     # Create semantic chunks
     print("Creating semantic chunks...")
@@ -63,8 +63,6 @@ if __name__ == "__main__":
         results = search(
             question,
             index,
-            chunks,
-            model,
             top_k=10
         )
 
