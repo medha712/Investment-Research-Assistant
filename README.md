@@ -22,21 +22,20 @@ This project is a Streamlit application for asking natural-language questions ab
 flowchart TD
     U["User"] --> UI["Streamlit frontend"]
     UI --> PDF["Financial PDF"]
-    PDF --> L["PyMuPDF page extraction"]
-    L --> SC["Semantic chunking"]
-    SC --> E["SentenceTransformer: all-MiniLM-L6-v2"]
-    E --> F["FAISS cosine-style retrieval"]
+    PDF --> L["LangChain PyMuPDFLoader"]
+    L --> SC["Semantic chunking<br/>(0.55 cosine threshold)"]
+    SC --> E["LangChain HuggingFaceEmbeddings<br/>all-MiniLM-L6-v2"]
+    E --> F["LangChain FAISS vectorstore<br/>cosine distance"]
     F --> C["Top 15 candidate chunks"]
-    C --> R["CrossEncoder reranker"]
+    C --> R["CrossEncoder reranker<br/>ms-marco-MiniLM-L6-v2"]
     R --> T["Top 5 evidence chunks"]
-    T --> G["Gemini grounded generation"]
-    G --> A["Answer and page citations"]
+    T --> G["Gemini 3.6-flash<br/>grounded generation"]
+    G --> A["Answer with [Page X] citations"]
     A --> UI
 
-    FX["Fixed-size chunks"] --> EV["Hit@5 and MRR comparison"]
-    SM["Semantic chunks"] --> EV
-    SR["Semantic + reranking"] --> EV
-```
+    FX["Fixed-size baseline<br/>1000 char / 200 overlap"] --> EV["Evaluation metrics<br/>Hit@5 and MRR"]
+    SM["Semantic chunking<br/>kept original algorithm"] --> EV
+    SR["Semantic + reranking<br/>retrieve-broad-then-narrow"] --> EV
 
 ## Technology stack
 
