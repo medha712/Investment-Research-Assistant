@@ -86,4 +86,5 @@ When migrating chunking to LangChain's built-in semantic chunker, retrieval accu
 
 - Not every pipeline stage benefits from a framework abstraction — chunking strategy is a modeling decision with measurable downstream effects, not interchangeable infrastructure.
 - Retrieve-broad-then-rerank is a cheap, meaningful accuracy gain over single-pass dense retrieval.
-- A strict, evidence-only generation prompt with mandatory citations is what makes the tool trustworthy enough for financial research, not the choice of LLM itself.ent-Research-Assistant](https://github.com/medha712/Investment-Research-Assistant)
+- A strict, evidence-only generation prompt with mandatory citations is what makes the tool trustworthy enough for financial research, not the choice of LLM itself.
+- Investment-Research-Assistant](https://github.com/medha712/Investment-Research-Assistant)
