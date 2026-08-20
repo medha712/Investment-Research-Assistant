@@ -23,19 +23,20 @@ flowchart TD
     U["User"] --> UI["Streamlit frontend"]
     UI --> PDF["Financial PDF"]
     PDF --> L["LangChain PyMuPDFLoader"]
-    L --> SC["Semantic chunking<br/>0.55 cosine threshold"]
-    SC --> E["LangChain HuggingFaceEmbeddings<br/>all-MiniLM-L6-v2"]
-    E --> F["LangChain FAISS vectorstore<br/>cosine distance"]
+    L --> SC["Semantic chunking 0.55 threshold"]
+    SC --> E["LangChain HuggingFaceEmbeddings"]
+    E --> F["LangChain FAISS vectorstore"]
     F --> C["Top 15 candidate chunks"]
-    C --> R["CrossEncoder reranker<br/>ms-marco-MiniLM-L6-v2"]
+    C --> R["CrossEncoder reranker"]
     R --> T["Top 5 evidence chunks"]
-    T --> G["Gemini 3.6-flash<br/>grounded generation"]
+    T --> G["Gemini 3.6-flash generation"]
     G --> A["Answer with Page citations"]
     A --> UI
 
-    FX["Fixed-size baseline"] --> EV["Evaluation<br/>Hit@5 and MRR"]
-    SM["Semantic chunking<br/>original algorithm"] --> EV
+    FX["Fixed-size baseline"] --> EV["Evaluation Hit@5 MRR"]
+    SM["Semantic chunking"] --> EV
     SR["Semantic + reranking"] --> EV
+```
 
 ## Technology stack
 
